@@ -9,22 +9,31 @@
 </style>
 </head>
 <body>
-  <h2>Base64 Decoder</h2>
   <div id="decoded"></div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const base64 = params.get("data");
 
-    if (base64) {
+    function decodeBase64Unicode(str) {
       try {
-        const decoded = atob(base64);
-        document.getElementById("decoded").innerText = decoded;
+        const bytes = Uint8Array.from(atob(str), c => c.charCodeAt(0));
+        const decoder = new TextDecoder('utf-8');
+        return decoder.decode(bytes);
       } catch (e) {
-        document.getElementById("decoded").innerText = "Invalid Base64 data.";
+        return null;
+      }
+    }
+
+    if (base64) {
+      const decoded = decodeBase64Unicode(base64);
+      if (decoded !== null) {
+        document.getElementById("decoded").innerText = decoded;
+      } else {
+        document.getElementById("error").innerText = "Invalid Base64 data.";
       }
     } else {
-      document.getElementById("decoded").innerText = "No data parameter found.";
+      document.getElementById("error").innerText = "No data parameter found.";
     }
   </script>
 </body>
