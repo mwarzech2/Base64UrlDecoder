@@ -15,25 +15,29 @@
     const params = new URLSearchParams(window.location.search);
     const base64 = params.get("data");
 
-    function decodeBase64Unicode(str) {
+    function decodeBase64UTF8(base64String) {
       try {
-        const bytes = Uint8Array.from(atob(str), c => c.charCodeAt(0));
-        const decoder = new TextDecoder('utf-8');
+        const binaryString = atob(base64String);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const decoder = new TextDecoder("utf-8", { fatal: false });
         return decoder.decode(bytes);
-      } catch (e) {
+      } catch (err) {
         return null;
       }
     }
 
     if (base64) {
-      const decoded = decodeBase64Unicode(base64);
+      const decoded = decodeBase64UTF8(base64);
       if (decoded !== null) {
         document.getElementById("decoded").innerText = decoded;
       } else {
         document.getElementById("error").innerText = "Invalid Base64 data.";
       }
     } else {
-      document.getElementById("error").innerText = "No data parameter found.";
+        document.getElementById("error").innerText = "No data parameter found.";
     }
   </script>
 </body>
