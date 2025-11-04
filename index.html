@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Base64 Decoder</title>
+<style>
+  body { font-family: sans-serif; text-align: center; margin-top: 5em; }
+  #decoded { font-weight: bold; color: darkgreen; margin-top: 1em; }
+</style>
+</head>
+<body>
+  <h2>Base64 Decoder</h2>
+  <div id="decoded"></div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const base64 = params.get("data");
+
+    if (base64) {
+      try {
+        const decoded = atob(base64);
+        document.getElementById("decoded").innerText = decoded;
+      } catch (e) {
+        document.getElementById("decoded").innerText = "Invalid Base64 data.";
+      }
+    } else {
+      document.getElementById("decoded").innerText = "No data parameter found.";
+    }
+  </script>
+</body>
+</html>
