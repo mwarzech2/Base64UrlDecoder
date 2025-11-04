@@ -1,43 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
 <meta charset="UTF-8">
 <title>Base64 Decoder</title>
 <style>
-  body { font-family: sans-serif; text-align: center; margin-top: 5em; }
-  #decoded { font-weight: bold; color: darkgreen; margin-top: 1em; }
+  body {
+    font-family: system-ui, sans-serif;
+    text-align: center;
+    margin-top: 5em;
+    background: #fafafa;
+  }
+  #decoded {
+    margin-top: 1em;
+    font-size: 1.4em;
+    font-weight: bold;
+    color: darkgreen;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  #error {
+    color: darkred;
+    margin-top: 1em;
+  }
 </style>
 </head>
 <body>
+  <h2>Base64 Decoder</h2>
   <div id="decoded"></div>
+  <div id="error"></div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const base64 = params.get("data");
 
-    function decodeBase64UTF8(base64String) {
+    function normalizeBase64(str) {
+      if (!str) return "";
+      // Replace URL-safe characters
+      str = str.replace(/-/g, '+').replace(/_/g, '/');
+      // Remove non-Base64 characters (like newlines)
+      str = str.replace(/[^A-Za-z0-9+/=]/g, '');
+      // Add padding if needed
+      while (str.length % 4 !== 0) {
+        str += '=';
+      }
+      return str;
+    }
+
+    function decodeBase64UTF8(str) {
       try {
-        const binaryString = atob(base64String);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        const decoder = new TextDecoder("utf-8", { fatal: false });
+        const normalized = normalizeBase64(str);
+        const binaryString = atob(normalized);
+        const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
+        const decoder = new TextDecoder('utf-8', { fatal: false });
         return decoder.decode(bytes);
       } catch (err) {
+        console.error("Base64 decode error:", err);
         return null;
       }
     }
 
     if (base64) {
       const decoded = decodeBase64UTF8(base64);
-      if (decoded !== null) {
+      if (decoded !== null)
         document.getElementById("decoded").innerText = decoded;
-      } else {
-        document.getElementById("error").innerText = "Invalid Base64 data.";
-      }
+      else
+        document.getElementById("error").innerText = "Incorrect Base64.";
     } else {
-        document.getElementById("error").innerText = "No data parameter found.";
+      document.getElementById("error").innerText = "No data parameter in the URL.";
     }
   </script>
 </body>
